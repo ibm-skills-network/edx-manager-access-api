@@ -1,47 +1,77 @@
-from .utils import extract_manager
-from django.http import HttpResponseBadRequest, JsonResponse
-from django.views.generic import View
+import logging
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.exceptions import ParseError
+from rest_framework import status
+from rest_framework.authentication import BasicAuthentication
+from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.models import User
 
-from django.utils.decorators import method_decorator
-from basicauth.decorators import basic_auth_required
-from django.views.decorators.csrf import csrf_exempt
+log = logging.getLogger(__name__)
 
-@method_decorator(csrf_exempt, name='dispatch')
-@method_decorator(basic_auth_required, name='dispatch')
-class ManagerAccessView(View):
-    """
-    Provides functionality to interact with EdX staff and superuser access
-    """
+
+class GrantManagerAccessView(APIView):
+
+    authentication_classes = [BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         """
         Enables a manager to have studio and django access
         body params
             - email
         """
+        email = request.data.get("email", None)
+        if not email:
+            msg = {"error": "Missing parameter 'email' in body."}
+            log.info(msg)
+            raise ParseError(msg)
+
         try:
-            manager = extract_manager(request)
-        except KeyError:
-            return HttpResponseBadRequest('Missing email')
+            manager = User.objects.get(email=email)
+        except Exception:  # pylint: disable=broad-except
+            msg = {
+                "error": "Could not find user by email address '{email}'".format(
+                    email=email
+                )
+            }
+            return Response(msg, 404)
 
         manager.is_staff = True
         manager.is_superuser = True
         manager.save()
-        return JsonResponse({'message': '{manager_email} is now able to access Studio and the Django Admin Console.'.format(manager_email=manager.email)})
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
-    def delete(self, request):
+
+class RevokeManagerAccessView(APIView):
+
+    authentication_classes = [BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
         """
         Removes a manager from having studio and django access
         body params
             - email
         """
+        email = request.data.get("email", None)
+        if not email:
+            msg = {"error": "Missing parameter 'email' in body."}
+            log.info(msg)
+            raise ParseError(msg)
+
         try:
-            manager = extract_manager(request)
-        except KeyError:
-            return HttpResponseBadRequest('Missing email')
+            manager = User.objects.get(email=email)
+        except Exception:  # pylint: disable=broad-except
+            msg = {
+                "error": "Could not find user by email address '{email}'".format(
+                    email=email
+                )
+            }
+            return Response(msg, 404)
 
         manager.is_staff = False
         manager.is_superuser = False
         manager.save()
-        return JsonResponse({'message': '{manager_email} is no longer able to access Studio and the Django Admin Console.'.format(manager_email=manager.email)})
+        return Response(status=status.HTTP_204_NO_CONTENT)
