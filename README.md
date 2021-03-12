@@ -6,7 +6,7 @@ Expose API to add grant user staff and superuser privileges
 
 ### Base Url
 
-`${STUDIO_URL}/sn-api`
+`${LMS_URL}/sn-api`
 
 ### Grant user privileges
 
