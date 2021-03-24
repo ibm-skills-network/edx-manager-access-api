@@ -1,7 +1,9 @@
 """
 URLs for edx_manager_access_api.
 """
+from django.conf import settings
 from django.conf.urls import url
+
 from . import views
 
 urlpatterns = [
@@ -10,7 +12,6 @@ urlpatterns = [
 ]
 
 # Since urls.py is executed once, create service user here for server to server auth
-from django.conf import settings
 from django.contrib.auth.models import User
 try:
     User.objects.get(username=settings.AUTH_USERNAME)

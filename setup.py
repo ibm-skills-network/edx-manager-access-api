@@ -62,10 +62,10 @@ if sys.argv[-1] == 'tag':
     sys.exit()
 
 README = open(os.path.join(os.path.dirname(__file__), 'README.md')).read()
-CHANGELOG = open(os.path.join(os.path.dirname(__file__), 'CHANGELOG.rst')).read()
+CHANGELOG = open(os.path.join(os.path.dirname(__file__), 'CHANGELOG.md')).read()
 
 setup(
-    name='edx-manager-access-api',
+    name='edx_manager_access_api',
     version=VERSION,
     description="""API to enable and disable manager access to Studio and Django on portals""",
     long_description=README + '\n\n' + CHANGELOG,
@@ -77,23 +77,26 @@ setup(
     ],
     include_package_data=True,
     install_requires=load_requirements('requirements/base.in'),
-    # python_requires=">=3.8",
     license="AGPL 3.0",
     zip_safe=False,
     keywords='Python edx',
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Framework :: Django',
+        'Framework :: Django :: 1.11',
+        'Framework :: Django :: 2.0',
+        'Framework :: Django :: 2.1',
         'Framework :: Django :: 2.2',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)',
         'Natural Language :: English',
         'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.8',
     ],
     entry_points={
-        'lms.djangoapp': [
-            'edx_manager_access_api = edx_manager_access_api.apps:EdxManagerAccessApiConfig',
+        "lms.djangoapp": [
+            "edx_manager_access_api = edx_manager_access_api.apps:EdxManagerAccessApiConfig",
         ],
     }
 )

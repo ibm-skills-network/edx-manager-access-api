@@ -1,3 +1,8 @@
+"""
+See apps.py for details on how this sort of plugin configures itself for
+integration with Open edX.
+"""
+
 import os
 
 def plugin_settings(settings):
