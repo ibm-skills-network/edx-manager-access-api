@@ -1,5 +1,2 @@
 # Core requirements for using this application
 -c constraints.txt
-
-Django>=4.0.1              # Web application framework
-django-basicauth>=0.5.2     # Basic Authentication
