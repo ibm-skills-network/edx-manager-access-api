@@ -8,13 +8,15 @@ from rest_framework.authentication import BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.models import User
 
+from .permissions import IsServiceAccount
+
 log = logging.getLogger(__name__)
 
 
 class GrantManagerAccessView(APIView):
 
     authentication_classes = [BasicAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsServiceAccount]
 
     def post(self, request):
         """
@@ -47,7 +49,7 @@ class GrantManagerAccessView(APIView):
 class RevokeManagerAccessView(APIView):
 
     authentication_classes = [BasicAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsServiceAccount]
 
     def post(self, request):
         """

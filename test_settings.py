@@ -28,6 +28,7 @@ DATABASES = {
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'rest_framework',
     'edx_manager_access_api',
 )
 
@@ -39,3 +40,7 @@ ROOT_URLCONF = 'edx_manager_access_api.urls'
 
 SECRET_KEY = 'insecure-secret-key'
 BASICAUTH_DISABLE = True
+
+# Username of the dedicated service account allowed to call the
+# manager-access grant/revoke endpoints (see IsServiceAccount permission).
+AUTH_USERNAME = 'sn-service'
