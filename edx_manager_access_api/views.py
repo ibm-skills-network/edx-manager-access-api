@@ -6,6 +6,7 @@ from rest_framework.exceptions import ParseError
 from rest_framework import status
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
+from django.conf import settings
 from django.contrib.auth.models import User
 
 from .permissions import IsServiceAccount
@@ -72,6 +73,13 @@ class RevokeManagerAccessView(APIView):
                 )
             }
             return Response(msg, 404)
+
+        # Every Skills Network plugin admits only the staff account named by
+        # AUTH_USERNAME. Taking staff away from it locks all of them out.
+        if manager.username == settings.AUTH_USERNAME:
+            msg = {"error": "The service account's own access cannot be revoked."}
+            log.warning(msg)
+            raise ParseError(msg)
 
         manager.is_staff = False
         manager.is_superuser = False

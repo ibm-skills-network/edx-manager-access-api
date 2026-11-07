@@ -11,6 +11,7 @@ superuser can escalate privileges (HackerOne #3868326). Only the configured
 
 import base64
 import json
+import secrets
 
 from django.contrib.auth.models import User
 from django.test import Client, TestCase, override_settings
@@ -19,20 +20,20 @@ from django.urls import reverse
 # Must match AUTH_USERNAME in test_settings.py.
 SERVICE_USERNAME = 'sn-service'
 SERVICE_EMAIL = 'service@place.com'
-SERVICE_PASSWORD = 'servicepass123'
+SERVICE_PASSWORD = secrets.token_hex(8)
 
 # A superuser that is NOT the service account -- must still be rejected.
 ADMIN_USERNAME = 'other-admin'
 ADMIN_EMAIL = 'other-admin@place.com'
-ADMIN_PASSWORD = 'adminpass123'
+ADMIN_PASSWORD = secrets.token_hex(8)
 
 LEARNER_USERNAME = 'learner'
 LEARNER_EMAIL = 'learner@place.com'
-LEARNER_PASSWORD = 'learnerpass123'
+LEARNER_PASSWORD = secrets.token_hex(8)
 
 TARGET_USERNAME = 'target'
 TARGET_EMAIL = 'target@place.com'
-TARGET_PASSWORD = 'targetpass123'
+TARGET_PASSWORD = secrets.token_hex(8)
 
 
 def serialize(body):
@@ -178,3 +179,9 @@ class TestRevokeManagerAccessView(ManagerAccessTestMixin, TestCase):
         self.target.refresh_from_db()
         self.assertFalse(self.target.is_staff)
         self.assertFalse(self.target.is_superuser)
+
+    def test_refuses_to_revoke_the_service_account(self):
+        res = self.post(credentials=(SERVICE_USERNAME, SERVICE_PASSWORD), body={'email': SERVICE_EMAIL})
+        self.assertEqual(res.status_code, 400)
+        self.service_account.refresh_from_db()
+        self.assertTrue(self.service_account.is_staff)
