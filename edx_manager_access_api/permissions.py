@@ -10,9 +10,8 @@ class IsServiceAccount(BasePermission):
     Allow access only to the dedicated manager-access service account.
 
     The caller must be an authenticated staff user whose username matches the
-    configured ``AUTH_USERNAME`` setting. This restricts the privilege-granting
-    endpoints to a single known integration account rather than to any
-    authenticated (or even any staff/superuser) user.
+    configured ``AUTH_USERNAME`` setting. Other staff users and superusers are
+    refused, so only that one integration account can grant or revoke access.
 
     Fails closed: if ``AUTH_USERNAME`` is unset or empty, no caller is allowed.
     """

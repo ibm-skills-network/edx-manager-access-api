@@ -13,5 +13,8 @@ def plugin_settings(settings):
     # IsServiceAccount reads AUTH_USERNAME. The other Skills Network plugins in the
     # LMS set it from the same environment variable. This plugin reads it too, so
     # its endpoints do not depend on one of them being installed.
-    if not getattr(settings, 'AUTH_USERNAME', None):
-        settings.AUTH_USERNAME = os.environ.get('AUTH_USERNAME')
+    # With the variable unset it leaves the setting alone. Writing None would make
+    # hasattr() true for a plugin whose plugin_settings runs after this one.
+    username = os.environ.get('AUTH_USERNAME')
+    if username and not getattr(settings, 'AUTH_USERNAME', None):
+        settings.AUTH_USERNAME = username

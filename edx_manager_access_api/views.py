@@ -76,7 +76,7 @@ class RevokeManagerAccessView(APIView):
 
         # Every Skills Network plugin admits only the staff account named by
         # AUTH_USERNAME. Taking staff away from it locks all of them out.
-        if manager.username == settings.AUTH_USERNAME:
+        if manager.username == getattr(settings, 'AUTH_USERNAME', None):
             msg = {"error": "The service account's own access cannot be revoked."}
             log.warning(msg)
             raise ParseError(msg)

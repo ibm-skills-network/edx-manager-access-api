@@ -19,3 +19,11 @@ def test_keeps_a_service_username_another_plugin_set(monkeypatch):
     settings = SimpleNamespace(AUTH_USERNAME='svc-sibling')
     common.plugin_settings(settings)
     assert settings.AUTH_USERNAME == 'svc-sibling'
+
+
+def test_leaves_the_setting_absent_when_the_environment_has_none(monkeypatch):
+    # A plugin that runs later may check hasattr(settings, 'AUTH_USERNAME').
+    monkeypatch.delenv('AUTH_USERNAME', raising=False)
+    settings = SimpleNamespace()
+    common.plugin_settings(settings)
+    assert not hasattr(settings, 'AUTH_USERNAME')

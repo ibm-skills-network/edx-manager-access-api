@@ -13,12 +13,12 @@ import base64
 import json
 import secrets
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
-# Must match AUTH_USERNAME in test_settings.py.
-SERVICE_USERNAME = 'sn-service'
+SERVICE_USERNAME = settings.AUTH_USERNAME
 SERVICE_EMAIL = 'service@place.com'
 SERVICE_PASSWORD = secrets.token_hex(8)
 
