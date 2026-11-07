@@ -44,3 +44,7 @@ BASICAUTH_DISABLE = True
 # Username of the dedicated service account allowed to call the
 # manager-access grant/revoke endpoints (see IsServiceAccount permission).
 AUTH_USERNAME = 'sn-service'
+
+# Every test authenticates over HTTP Basic, and Django hashes the password on each
+# request. With the default PBKDF2 hasher the suite takes several times as long.
+PASSWORD_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']

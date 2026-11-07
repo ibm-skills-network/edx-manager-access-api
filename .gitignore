@@ -59,3 +59,6 @@ docs/edx_manager_access_api.*.rst
 # Private requirements
 requirements/private.in
 requirements/private.txt
+
+# make test RELEASE=...
+.venv-*/

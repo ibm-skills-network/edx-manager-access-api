@@ -1,6 +1,6 @@
 .PHONY: clean compile_translations coverage diff_cover docs dummy_translations \
         extract_translations fake_translations help pii_check pull_translations push_translations \
-        quality requirements selfcheck test test-all upgrade validate
+        quality requirements selfcheck test install clean-test test-all upgrade validate
 
 .DEFAULT_GOAL := help
 
@@ -57,14 +57,13 @@ requirements: ## install development environment requirements
 	pip install -qr requirements/pip-tools.txt
 	pip-sync requirements/dev.txt requirements/private.*
 
-test: clean ## run tests in the current virtualenv
-	pytest
 
 diff_cover: test ## find diff lines that need test coverage
 	diff-cover coverage.xml
 
-test-all: quality pii_check ## run tests on every supported Python/Django combination
-	tox
+test-all: quality pii_check ## run tests against every supported Open edX release
+	$(MAKE) test RELEASE=redwood
+	$(MAKE) test RELEASE=verawood
 
 validate: quality pii_check test ## run tests and quality checks
 
@@ -96,3 +95,37 @@ dummy_translations: ## generate dummy translation (.po) files
 build_dummy_translations: extract_translations dummy_translations compile_translations ## generate and compile dummy translation files
 
 validate_translations: build_dummy_translations detect_changed_source_translations ## validate translations
+
+## Tests against one Open edX release
+
+# The Open edX release to test against. Each one has its own constraints file
+# and Python version, below.
+RELEASE ?= verawood
+
+ifeq ($(RELEASE),redwood)
+PYTHON ?= python3.11
+else ifeq ($(RELEASE),verawood)
+PYTHON ?= python3.12
+else
+$(error RELEASE must be redwood or verawood, not $(RELEASE))
+endif
+
+VENV ?= .venv-$(RELEASE)
+BIN := $(VENV)/bin
+CONSTRAINTS := tests/constraints-$(RELEASE).txt
+# The LMS installs these and the plugin imports them, but setup.py does not list them.
+FROM_EDX_PLATFORM := Django djangorestframework
+
+test: install ## run the tests against RELEASE (redwood or verawood, default verawood)
+	$(BIN)/pytest
+
+install: $(BIN)/pytest
+
+$(BIN)/pytest: Makefile $(CONSTRAINTS) setup.py requirements/base.in
+	$(PYTHON) -m venv $(VENV)
+	$(BIN)/pip install --quiet --upgrade pip
+	$(BIN)/pip install --quiet -c $(CONSTRAINTS) pytest pytest-cov pytest-django $(FROM_EDX_PLATFORM) -e .
+	touch $@
+
+clean-test: ## remove the test virtualenvs
+	rm -rf .venv-redwood .venv-verawood
